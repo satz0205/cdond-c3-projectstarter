@@ -492,9 +492,9 @@ workflows:
   default:
     jobs:
        - build-frontend:
-           context: UDAPEOPLE_SLACK
+#          context: UDAPEOPLE_SLACK
        - build-backend:
-           context: UDAPEOPLE_SLACK
+#          context: UDAPEOPLE_SLACK
 #      - test-frontend:
 #          requires: [build-frontend]
 #          context: UDAPEOPLE_SLACK

@@ -430,7 +430,37 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1    
-
+  
+  cleanup:
+    docker:
+      # Docker image here
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            yum install -y curl
+      - run:
+          name: Get old stack workflow id and Cleanup
+          command: |
+            # your code here
+            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --region us-east-1 --no-paginate --output text)
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack Names: "${STACKS[@]}"
+            if [[ "${STACKS[@]}" != "${OldWorkflowID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID:0:7}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID:0:7}"
+            else
+              echo "exit"
+            fi
+  
 workflows:
   default:
     jobs:
@@ -458,3 +488,5 @@ workflows:
              requires: [deploy-backend, deploy-frontend]
          - cloudfront-update:
              requires: [smoke-test]
+         - cleanup:
+             requires: [cloudfront-update]

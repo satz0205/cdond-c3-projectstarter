@@ -1,6 +1,5 @@
 version: 2.1
-
-           
+         
 jobs:
   build-frontend:
     docker:
@@ -18,7 +17,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      -
+      
 
   build-backend:
     docker:

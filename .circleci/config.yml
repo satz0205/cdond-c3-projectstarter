@@ -17,6 +17,26 @@ commands:
             aws s3 rm --recursive s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+  
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      # Add parameter here     
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          # Add when this will run
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            SUCCESS=$(curl --insecure  https://kvdb.io/UH8J6U7q5xbXA8nJYLHj2e/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if(( $SUCCESS==0 )); 
+            then
+              echo "Reverting Back"
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
 
 jobs:
   build-frontend:
@@ -357,7 +377,7 @@ jobs:
             then
               exit 0
             else
-              exit 0
+              exit 1
             fi
       - run:
           name: Frontend smoke test.
@@ -373,7 +393,7 @@ jobs:
               exit 1
             fi
       # Here's where you will add some code to rollback on failure  
-#      - revert-migrations
+      - revert-migrations
       - destroy-environment  
       - slack/notify:
           event: fail

@@ -242,6 +242,43 @@ jobs:
     # Here's where you will add some code to rollback on failure    
       - slack/notify:
           event: fail
+          template: basic_fail_1   
+
+  deploy-frontend:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            yum -y install python3
+            curl -sL https://rpm.nodesource.com/setup_16.x | bash -
+            yum -y install nodejs tar gzip
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople-backend-0ccb20e" --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-0ccb20e.tar.gz dist
+            aws s3 cp dist s3://udapeople-0ccb20e --recursive
+# Here's where you will add some code to rollback on failure     
+      - slack/notify:
+          event: fail
           template: basic_fail_1        
 
 workflows:
@@ -263,3 +300,5 @@ workflows:
             requires: [deploy-infrastructure]
         - run-migrations:
             requires: [configure-infrastructure]
+        - deploy-frontend:
+            requires: [run-migrations]

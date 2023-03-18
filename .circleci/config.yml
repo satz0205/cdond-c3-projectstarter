@@ -17,7 +17,7 @@ commands:
             aws s3 rm --recursive s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
-                     
+
 jobs:
   build-frontend:
     docker:
@@ -80,6 +80,7 @@ jobs:
           command: |
             cd frontend
             npm install
+            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
             npm audit fix --audit-level=critical
      
@@ -95,8 +96,10 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix --audit-level=critical --force
+            npm audit fix --force
             npm audit --audit-level=critical
-            npm audit fix --audit-level=critical
+            
       - slack/notify:
           event: fail
           template: basic_fail_1

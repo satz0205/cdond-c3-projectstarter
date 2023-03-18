@@ -373,7 +373,7 @@ jobs:
               exit 1
             fi
       # Here's where you will add some code to rollback on failure  
-      - revert-migrations
+#      - revert-migrations
       - destroy-environment  
       - slack/notify:
           event: fail

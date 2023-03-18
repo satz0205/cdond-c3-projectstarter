@@ -102,7 +102,7 @@ jobs:
           event: fail
           template: basic_fail_1
   
-   deploy-infrastructure:
+  deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
       - image: amazon/aws-cli

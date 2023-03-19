@@ -176,7 +176,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
+        
       - persist_to_workspace:
           root: .
           paths:
@@ -246,17 +246,14 @@ jobs:
             echo "npm install"
             npm install
             npm run migrations > migrations_dump.txt
-            cat migrations_dump.txt 
             
       - run:
           name: Send migration results to memstash
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              echo 'Migrated successfully'
               curl https://kvdb.io/UH8J6U7q5xbXA8nJYLHj2e/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             else:
-              echo 'Migration failed'
               curl https://kvdb.io/UH8J6U7q5xbXA8nJYLHj2e/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
             fi
     # Here's where you will add some code to rollback on failure    
@@ -284,7 +281,6 @@ jobs:
             # your code here
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
@@ -345,7 +341,6 @@ jobs:
             cd ..
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
-            cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 # Here's where you will add some code to rollback on failure  
       - destroy-environment  
@@ -377,7 +372,7 @@ jobs:
             then
               exit 0
             else
-              exit 0
+              exit 1
             fi
       - run:
           name: Frontend smoke test.
@@ -474,19 +469,19 @@ workflows:
 #          requires: [build-backend]
 #      - scan-frontend:
 #          requires: [build-frontend]  
-         - deploy-infrastructure
+#         - deploy-infrastructure
 #           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-         - configure-infrastructure:
-             requires: [deploy-infrastructure]
-         - run-migrations:
-             requires: [configure-infrastructure]
-         - deploy-frontend:
-             requires: [run-migrations]
-         - deploy-backend:
-             requires: [run-migrations]
-         - smoke-test:
-             requires: [deploy-backend, deploy-frontend]
-         - cloudfront-update:
-             requires: [smoke-test]
+#         - configure-infrastructure:
+#             requires: [deploy-infrastructure]
+#         - run-migrations:
+#             requires: [configure-infrastructure]
+#         - deploy-frontend:
+#             requires: [run-migrations]
+#         - deploy-backend:
+#             requires: [run-migrations]
+#         - smoke-test:
+#             requires: [deploy-backend, deploy-frontend]
+#         - cloudfront-update:
+#             requires: [smoke-test]
 #         - cleanup:
 #             requires: [cloudfront-update]

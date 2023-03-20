@@ -25,7 +25,7 @@
     "premigrations:generate": "npm run build",
     "migrations:generate": "ts-node -r dotenv/config node_modules/.bin/typeorm migration:generate",
     "premigrations": "npm run build",
-    "migrations": "ts-node -r dotenv/config node_modules/.bin/typeorm migration:run",
+    "migrations": "ts-node -r dotenv/config node_modules/.bin/typeorm migration:run",class
     "migrations-win": "ts-node node_modules/typeorm/cli.js migration:run",
     "premigrations:revert": "npm run build",
     "migrations:revert": "ts-node -r dotenv/config node_modules/.bin/typeorm migration:revert",
@@ -86,7 +86,7 @@
     "tslint": "5.11.0",
     "typescript": "^3.8.3",
     "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11",
+    "webpack-cli": "^3.3.11", 
     "webpack-node-externals": "^1.7.2"
   },
   "jest": {
